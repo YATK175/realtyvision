@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RealtyVision — оцінка житла</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div id="app">
+
+    <header class="topbar">
+        <div class="container topbar__inner">
+            <div class="brand">
+                <img src="/static/img/logo.svg" width="28" height="28" alt="">
+                RealtyVision
+            </div>
+            <nav class="topbar__nav">
+                <a class="nav-link" :class="{active: currentPage==='evaluate'}" @click="currentPage='evaluate'">Оцінка</a>
+                <a v-if="user" class="nav-link" :class="{active: currentPage==='history'}" @click="goHistory">Історія</a>
+                <a v-if="user" class="nav-link" :class="{active: currentPage==='analytics'}" @click="goAnalytics">Аналітика</a>
+            </nav>
+            <div class="topbar__actions">
+                <div class="mode-badge" :class="'mode-' + currentMode">{{ modeLabel }}</div>
+                <template v-if="user">
+                    <div class="user-badge" @click="logout" title="Вийти">
+                        <div class="user-avatar">{{ userInitials() }}</div>
+                        <span>{{ user.name }}</span>
+                    </div>
+                </template>
+                <template v-else>
+                    <button class="btn-auth" @click="openAuth('login')">Увійти</button>
+                </template>
+            </div>
+        </div>
+    </header>
+
+    <main class="container main-content">
+
+        <!-- ═══════════════════════════════════════════
+             EVALUATE PAGE
+             ═══════════════════════════════════════════ -->
+        <section v-if="currentPage==='evaluate'" class="page-evaluate">
+            <div class="two-col">
+
+                <!-- Ліва колонка: форма -->
+                <div class="col-form">
+                    <h2 class="section-title">Параметри об'єкта</h2>
+
+                    <div class="upload-zone"
+                         :class="{dragging: isDragging}"
+                         @dragover.prevent="isDragging=true"
+                         @dragleave="isDragging=false"
+                         @drop.prevent="onDrop"
+                         @click="$refs.fileInput.click()">
+                        <div v-if="form.photos.length === 0" class="upload-placeholder">
+                            <div class="upload-icon">&#8679;</div>
+                            <div>Перетягніть фото або натисніть для вибору</div>
+                            <div class="upload-hint">JPG, PNG, WebP · до 8 МБ · від 1 до 10 фото</div>
+                        </div>
+                        <div v-else class="photo-grid">
+                            <div v-for="(preview, idx) in form.photoPreviews" :key="idx" class="photo-thumb">
+                                <img :src="preview" alt="фото">
+                                <button class="photo-remove" @click.stop="removePhoto(idx)">&#10005;</button>
+                            </div>
+                            <div v-if="form.photos.length < 10" class="photo-add" @click.stop="$refs.fileInput.click()">+</div>
+                        </div>
+                    </div>
+                    <input ref="fileInput" type="file" accept=".jpg,.jpeg,.png,.webp" multiple style="display:none" @change="onFileSelect">
+
+                    <div class="field">
+                        <label>Тип нерухомості</label>
+                        <div class="type-toggle">
+                            <button type="button" :class="{active: form.realtyType==='apartment'}" @click="form.realtyType='apartment'">Квартира</button>
+                            <button type="button" :class="{active: form.realtyType==='house'}" @click="form.realtyType='house'">Будинок</button>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Область</label>
+                        <select v-model="form.stateId" @change="loadCities">
+                            <option :value="null" disabled>Оберіть область</option>
+                            <option v-for="r in regions" :key="r.state_id" :value="r.state_id">{{ r.name }}</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Місто</label>
+                        <select v-model="form.cityId" :disabled="!form.stateId || form.cities.length===0">
+                            <option :value="null" disabled>Оберіть місто</option>
+                            <option v-for="c in form.cities" :key="c.city_id" :value="c.city_id">{{ c.name }}</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Кількість кімнат</label>
+                        <div class="rooms-toggle">
+                            <button type="button" v-for="n in [1,2,3,4,5]" :key="n"
+                                    :class="{active: form.roomsCount===n}"
+                                    @click="form.roomsCount=n">{{ n }}</button>
+                            <button type="button" :class="{active: form.roomsCount===6}" @click="form.roomsCount=6">6+</button>
+                        </div>
+                    </div>
+
+                    <div v-if="form.realtyType==='apartment'" class="field-row-2">
+                        <div class="field">
+                            <label>Поверх</label>
+                            <input type="number" v-model.number="form.floor" min="1" max="50" placeholder="напр. 4">
+                        </div>
+                        <div class="field">
+                            <label>Поверхів у будинку</label>
+                            <input type="number" v-model.number="form.totalFloors" min="1" max="50" placeholder="напр. 9">
+                        </div>
+                    </div>
+
+                    <div class="field-row-2">
+                        <div class="field">
+                            <label>Рік побудови</label>
+                            <input type="number" v-model.number="form.yearBuilt" min="1900" :max="currentYear" placeholder="необов'язково">
+                        </div>
+                        <div class="field">
+                            <label>Площа, м²</label>
+                            <input type="number" v-model.number="form.userArea" min="10" max="1000" step="0.5" placeholder="оцінимо за фото">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Додатковий опис <span class="label-hint">(необов'язково)</span></label>
+                        <textarea v-model="form.userDescription" rows="3" placeholder="Стан ремонту, особливості, що не видно на фото..."></textarea>
+                    </div>
+
+                    <button class="btn-primary" :disabled="isLoading || !canSubmit" @click="submitEvaluation">
+                        <span v-if="isLoading">Аналіз...</span>
+                        <span v-else>Оцінити</span>
+                    </button>
+                </div>
+
+                <!-- Права колонка: результат -->
+                <div class="col-result">
+                    <div v-if="!isLoading && !evaluation && !evalError" class="result-placeholder">
+                        <div class="placeholder-icon">&#9776;</div>
+                        <p>Заповніть форму та натисніть «Оцінити»</p>
+                    </div>
+
+                    <div v-if="isLoading" class="result-loading">
+                        <div class="loading-steps">
+                            <div v-for="step in loadingSteps" :key="step.id"
+                                 class="loading-step"
+                                 :class="{done: step.done, active: step.active && !step.done}">
+                                <span class="step-icon">
+                                    <span v-if="step.done">&#10003;</span>
+                                    <span v-else-if="step.active" class="spinner"></span>
+                                    <span v-else>&#9675;</span>
+                                </span>
+                                <span>{{ step.label }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="evalError" class="result-error">
+                        <strong>Помилка:</strong> {{ evalError }}
+                    </div>
+
+                    <div v-if="evaluation && !isLoading" class="result-card">
+
+                        <div v-if="evaluation.mode !== 'full'" class="mode-warning">
+                            <span v-if="evaluation.mode==='full_with_cached_prices'">Ціни з кешу</span>
+                            <span v-else-if="evaluation.mode==='degraded'">AI обмежений (локальна модель)</span>
+                            <span v-else>Без AI, оцінка тільки за характеристиками</span>
+                        </div>
+
+                        <div class="price-block">
+                            <div class="price-label">Орієнтовна вартість</div>
+                            <div class="price-main">${{ formatNum(evaluation.final_price) }}</div>
+                            <div class="price-range">діапазон: ${{ formatNum(evaluation.price_min) }} – ${{ formatNum(evaluation.price_max) }}</div>
+                        </div>
+
+                        <div class="result-card-body">
+                            <div class="meta-row">
+                                <div class="meta-cell">
+                                    <div class="meta-title">Стан</div>
+                                    <div class="condition-stars">
+                                        <span v-for="i in 5" :key="i" class="star" :class="{filled: i <= evaluation.condition_score}">&#9679;</span>
+                                    </div>
+                                    <div class="meta-value">{{ evaluation.condition_label }}</div>
+                                </div>
+                                <div class="meta-cell">
+                                    <div class="meta-title">Площа</div>
+                                    <div class="meta-value big">{{ evaluation.final_area }} м²</div>
+                                    <div class="meta-sub">{{ evaluation.area_source === 'user' ? 'вказана' : 'оцінена за фото' }}</div>
+                                </div>
+                            </div>
+
+                            <div class="base-price-row">
+                                Базова ціна: <strong>${{ formatNum(evaluation.base_price_per_m2) }}/м²</strong>
+                                <span class="source-tag">{{ sourceName(evaluation.price_source) }}
+                                    <template v-if="evaluation.price_sample_size > 0">, {{ evaluation.price_sample_size }} аналогів</template>
+                                </span>
+                            </div>
+
+                            <div class="coefficients-block">
+                                <div class="coef-title">Коригування</div>
+                                <div class="coef-row">
+                                    <span>Стан</span>
+                                    <span :class="coefClass(evaluation.coefficients.condition)">×{{ evaluation.coefficients.condition }}</span>
+                                </div>
+                                <div class="coef-row">
+                                    <span>Поверх</span>
+                                    <span :class="coefClass(evaluation.coefficients.floor)">×{{ evaluation.coefficients.floor }}</span>
+                                </div>
+                                <div class="coef-row">
+                                    <span>Рік побудови{{ evaluation.year_built ? ' (' + evaluation.year_built + ')' : '' }}</span>
+                                    <span :class="coefClass(evaluation.coefficients.year)">×{{ evaluation.coefficients.year }}</span>
+                                </div>
+                                <div class="coef-row coef-total">
+                                    <span>Підсумок</span>
+                                    <span :class="coefClass(evaluation.coefficients.combined)">×{{ evaluation.coefficients.combined }}</span>
+                                </div>
+                            </div>
+
+                            <div v-if="evaluation.factors && evaluation.factors.length > 0" class="factors-block">
+                                <div class="factors-title">Помічено на фото</div>
+                                <div v-for="f in evaluation.factors" :key="f.text"
+                                     class="factor-item"
+                                     :class="'factor-' + f.type">
+                                    <span class="factor-sign">{{ f.type === 'positive' ? '+' : f.type === 'negative' ? '−' : '·' }}</span>
+                                    {{ f.text }}
+                                </div>
+                            </div>
+
+                            <div v-if="evaluation.explanation" class="explanation-block">
+                                <div class="explanation-title">Пояснення</div>
+                                <div class="explanation-text">{{ evaluation.explanation }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Renovation Advisor (тільки для авторизованих) -->
+                        <div v-if="user" class="renovation-block">
+                            <button class="renovation-trigger"
+                                    :disabled="renovationLoading"
+                                    @click="requestRenovation"
+                                    v-if="!renovationPlan">
+                                <span v-if="renovationLoading" class="spinner" style="display:inline-block;margin-right:8px"></span>
+                                {{ renovationLoading ? 'Аналіз плану ремонту...' : 'AI: Порахувати план ремонту' }}
+                            </button>
+
+                            <div v-if="renovationPlan" class="renovation-result">
+                                <div class="coef-title" style="margin-bottom:12px">Plan ремонту (AI)</div>
+                                <div class="renovation-summary">
+                                    <div class="renov-stat">
+                                        <div class="renov-stat-val">+{{ renovationPlan.potential_value_increase_pct }}%</div>
+                                        <div class="renov-stat-label">Приріст ціни</div>
+                                    </div>
+                                    <div class="renov-stat">
+                                        <div class="renov-stat-val">${{ formatNum(renovationPlan.total_cost_min) }}</div>
+                                        <div class="renov-stat-label">Від (ремонт)</div>
+                                    </div>
+                                    <div class="renov-stat">
+                                        <div class="renov-stat-val">${{ formatNum(renovationPlan.total_cost_max) }}</div>
+                                        <div class="renov-stat-label">До (ремонт)</div>
+                                    </div>
+                                </div>
+                                <div v-for="item in renovationPlan.items" :key="item.name" class="renov-item">
+                                    <div class="renov-item-header">
+                                        <span class="renov-item-name">{{ item.name }}</span>
+                                        <span class="renov-priority" :class="priorityClass(item.priority)">{{ priorityLabel(item.priority) }}</span>
+                                    </div>
+                                    <div class="renov-item-meta">
+                                        <span class="renov-cost">${{ formatNum(item.cost_min) }}–${{ formatNum(item.cost_max) }}</span>
+                                        <span class="renov-gain">+${{ formatNum(item.value_gain) }}</span>
+                                    </div>
+                                    <div class="renov-item-desc">{{ item.description }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="result-actions">
+                            <button class="btn-secondary" @click="resetEvaluation">Нова оцінка</button>
+                            <template v-if="user">
+                                <button v-if="isSaved" class="btn-pdf" @click="openPdf">PDF</button>
+                                <button class="btn-primary" :disabled="isSaved" @click="saveEvaluation">
+                                    {{ isSaved ? 'Збережено' : 'Зберегти в історію' }}
+                                </button>
+                            </template>
+                            <button v-else class="btn-auth" @click="openAuth('login')" style="flex:1">
+                                Увійдіть, щоб зберегти
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             HISTORY PAGE
+             ═══════════════════════════════════════════ -->
+        <section v-if="currentPage==='history'" class="page-history">
+            <div class="history-header">
+                <h2 class="section-title">Історія оцінок</h2>
+                <span v-if="historyTotal > 0" style="font-size:12px;color:var(--muted)">{{ historyTotal }} записів</span>
+            </div>
+
+            <!-- Filters -->
+            <div class="filter-bar">
+                <select v-model="historyFilters.realty_type" @change="applyFilters">
+                    <option value="">Всі типи</option>
+                    <option value="apartment">Квартири</option>
+                    <option value="house">Будинки</option>
+                </select>
+                <select v-model="historyFilters.sort" @change="applyFilters">
+                    <option value="date_desc">Нові спочатку</option>
+                    <option value="date_asc">Старі спочатку</option>
+                    <option value="price_desc">Дорожчі спочатку</option>
+                    <option value="price_asc">Дешевші спочатку</option>
+                    <option value="condition_desc">За станом</option>
+                </select>
+                <input type="number" v-model.number="historyFilters.price_min" placeholder="Ціна від $" @change="applyFilters">
+                <input type="number" v-model.number="historyFilters.price_max" placeholder="Ціна до $" @change="applyFilters">
+                <select v-model.number="historyFilters.condition_min" @change="applyFilters">
+                    <option :value="null">Будь-який стан</option>
+                    <option :value="3">Від 3/5</option>
+                    <option :value="4">Від 4/5</option>
+                    <option :value="5">Тільки 5/5</option>
+                </select>
+                <input type="date" v-model="historyFilters.date_from" @change="applyFilters" title="Від дати">
+                <input type="date" v-model="historyFilters.date_to" @change="applyFilters" title="До дати">
+                <button class="btn-filter-reset" @click="resetFilters">Скинути</button>
+            </div>
+
+            <div v-if="historyLoading" class="loading-inline">Завантаження...</div>
+            <div v-else-if="history.length === 0" class="empty-state">
+                <p>Збережених оцінок немає.</p>
+                <button class="btn-secondary" @click="currentPage='evaluate'">Перейти до оцінки</button>
+            </div>
+            <div v-else class="history-list">
+                <div v-for="item in history" :key="item.id" class="history-card">
+                    <input type="checkbox" class="compare-check"
+                           :checked="isInCompare(item.id)"
+                           :disabled="compareIds.length >= 2 && !isInCompare(item.id)"
+                           @change="toggleCompare(item.id)"
+                           @click.stop>
+                    <div class="history-thumb" @click="openHistoryItem(item.id)">
+                        <img v-if="item.thumbnail" :src="item.thumbnail" alt="фото">
+                        <div v-else class="thumb-placeholder">&#9776;</div>
+                    </div>
+                    <div class="history-info" @click="openHistoryItem(item.id)">
+                        <div class="history-title">{{ item.city_name }}, {{ item.rooms_count }}-кімн. {{ item.realty_type === 'apartment' ? 'квартира' : 'будинок' }}</div>
+                        <div class="history-price">${{ formatNum(item.final_price) }} · {{ item.condition_label }}</div>
+                        <div class="history-date">{{ formatDate(item.created_at) }}</div>
+                    </div>
+                    <button class="btn-pdf" style="padding:6px 10px;font-size:11px" @click.stop="openHistoryPdf(item.id)" title="Завантажити PDF">PDF</button>
+                    <button class="history-delete" @click.stop="deleteHistoryItem(item.id)" title="Видалити">&#10005;</button>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div v-if="historyPages > 1" class="history-pagination">
+                <button :disabled="historyFilters.page <= 1" @click="setPage(historyFilters.page - 1)">&#8592;</button>
+                <span class="page-info">{{ historyFilters.page }} / {{ historyPages }}</span>
+                <button :disabled="historyFilters.page >= historyPages" @click="setPage(historyFilters.page + 1)">&#8594;</button>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             ANALYTICS PAGE
+             ═══════════════════════════════════════════ -->
+        <section v-if="currentPage==='analytics'" class="page-analytics">
+            <h2 class="section-title">Аналітика ринку</h2>
+
+            <!-- My stats -->
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);margin-bottom:12px">Мої оцінки</div>
+            <div v-if="analyticsSummary" class="analytics-summary-grid" style="margin-bottom:24px">
+                <div class="summary-card">
+                    <div class="summary-val">{{ formatNum(analyticsSummary.total_evaluations) }}</div>
+                    <div class="summary-label">Збережено оцінок</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-val" v-if="analyticsSummary.total_evaluations > 0">${{ formatNum(analyticsSummary.avg_price) }}</div>
+                    <div class="summary-val" v-else style="font-size:16px">—</div>
+                    <div class="summary-label">Середня ціна</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-val" v-if="analyticsSummary.top_cities && analyticsSummary.top_cities.length">{{ analyticsSummary.top_cities[0].city_name }}</div>
+                    <div class="summary-val" v-else style="font-size:16px">—</div>
+                    <div class="summary-label">Найчастіше місто</div>
+                </div>
+            </div>
+
+            <!-- My top cities -->
+            <div v-if="analyticsSummary && analyticsSummary.top_cities && analyticsSummary.top_cities.length > 1" class="chart-card" style="margin-bottom:20px">
+                <div class="chart-card-title">Мої оцінки по містах</div>
+                <table class="top-cities-table">
+                    <thead>
+                        <tr>
+                            <th>Місто</th>
+                            <th>Область</th>
+                            <th>Оцінок</th>
+                            <th>Сер. ціна</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="city in analyticsSummary.top_cities" :key="city.city_name">
+                            <td><strong>{{ city.city_name }}</strong></td>
+                            <td style="color:var(--muted)">{{ city.state_name }}</td>
+                            <td>{{ city.cnt }}</td>
+                            <td>${{ formatNum(Math.round(city.avg_price)) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);margin-bottom:12px;margin-top:8px">Ринкові ціни (DOM.RIA)</div>
+
+            <!-- Price trend chart -->
+            <div class="analytics-controls">
+                <select v-model.number="analyticsFilters.state_id" @change="loadAnalyticsPrices">
+                    <option :value="null" disabled>Оберіть регіон</option>
+                    <option v-for="r in regions" :key="r.state_id" :value="r.state_id">{{ r.name }}</option>
+                </select>
+                <select v-model="analyticsFilters.realty_type" @change="loadAnalyticsPrices">
+                    <option value="apartment">Квартири</option>
+                    <option value="house">Будинки</option>
+                </select>
+                <select v-model.number="analyticsFilters.rooms_count" @change="loadAnalyticsPrices">
+                    <option v-for="n in [1,2,3,4,5]" :key="n" :value="n">{{ n }}-кімн.</option>
+                </select>
+                <span style="font-size:12px;color:var(--muted)">Дані формуються після збережених оцінок</span>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-card-title">Динаміка базової ціни за м² (USD)</div>
+                <div v-if="!analyticsFilters.state_id" class="analytics-empty">
+                    Оберіть регіон для перегляду динаміки цін
+                </div>
+                <div v-else-if="analyticsLoading" class="analytics-empty">Завантаження...</div>
+                <div v-else-if="!analyticsData.length" class="analytics-empty">
+                    Недостатньо даних для побудови графіку.<br>
+                    Зробіть і збережіть оцінки для цього регіону.
+                </div>
+                <div v-else class="chart-wrapper">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <div class="container footer__inner">
+            Дані про ціни: <a href="https://dom.ria.com" target="_blank" rel="noopener">DOM.RIA</a>
+            &nbsp;·&nbsp; Курсова робота, {{ currentYear }}
+        </div>
+    </footer>
+
+    <!-- ═══════════════════════════════════════════
+         AUTH MODAL
+         ═══════════════════════════════════════════ -->
+    <div v-if="showAuthModal" class="modal-overlay" @click.self="showAuthModal=false">
+        <div class="modal" style="max-width:420px">
+            <button class="modal-close" @click="showAuthModal=false">&#10005;</button>
+            <h3 class="modal-title">RealtyVision</h3>
+
+            <div class="auth-tabs">
+                <button class="auth-tab" :class="{active: authTab==='login'}" @click="authTab='login'; authError=''">Увійти</button>
+                <button class="auth-tab" :class="{active: authTab==='register'}" @click="authTab='register'; authError=''">Реєстрація</button>
+            </div>
+
+            <div v-if="authError" class="form-error">{{ authError }}</div>
+
+            <div v-if="authTab==='login'">
+                <div class="field">
+                    <label>Email</label>
+                    <input type="email" v-model="authForm.email" placeholder="you@example.com" @keyup.enter="submitAuth">
+                </div>
+                <div class="field">
+                    <label>Пароль</label>
+                    <input type="password" v-model="authForm.password" placeholder="••••••" @keyup.enter="submitAuth">
+                </div>
+                <button class="btn-primary" :disabled="authLoading" @click="submitAuth">
+                    <span v-if="authLoading" class="spinner" style="display:inline-block;margin-right:8px"></span>
+                    Увійти
+                </button>
+                <div style="text-align:center;margin-top:14px;font-size:12px;color:var(--muted)">
+                    Немає акаунта?
+                    <a @click="authTab='register'; authError=''" style="cursor:pointer">Зареєструватися</a>
+                </div>
+            </div>
+
+            <div v-if="authTab==='register'">
+                <div class="field">
+                    <label>Ім'я</label>
+                    <input type="text" v-model="authForm.name" placeholder="Ваше ім'я">
+                </div>
+                <div class="field">
+                    <label>Email</label>
+                    <input type="email" v-model="authForm.email" placeholder="you@example.com">
+                </div>
+                <div class="field">
+                    <label>Пароль</label>
+                    <input type="password" v-model="authForm.password" placeholder="Мінімум 6 символів">
+                </div>
+                <div class="field">
+                    <label>Повторіть пароль</label>
+                    <input type="password" v-model="authForm.confirm" placeholder="••••••" @keyup.enter="submitAuth">
+                </div>
+                <button class="btn-primary" :disabled="authLoading" @click="submitAuth">
+                    <span v-if="authLoading" class="spinner" style="display:inline-block;margin-right:8px"></span>
+                    Зареєструватися
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         HISTORY DETAIL MODAL
+         ═══════════════════════════════════════════ -->
+    <div v-if="selectedItem" class="modal-overlay" @click.self="selectedItem=null">
+        <div class="modal">
+            <button class="modal-close" @click="selectedItem=null">&#10005;</button>
+            <h3 class="modal-title">{{ selectedItem.city_name }}, {{ selectedItem.rooms_count }}-кімн. {{ selectedItem.realty_type === 'apartment' ? 'квартира' : 'будинок' }}</h3>
+
+            <div v-if="selectedItem.photos && selectedItem.photos.length" class="modal-gallery">
+                <img v-for="p in selectedItem.photos" :key="p.filename" :src="p.url" class="gallery-img" alt="фото">
+            </div>
+
+            <div class="price-block">
+                <div class="price-label">Орієнтовна вартість</div>
+                <div class="price-main">${{ formatNum(selectedItem.final_price) }}</div>
+                <div class="price-range">${{ formatNum(selectedItem.price_min) }} – ${{ formatNum(selectedItem.price_max) }}</div>
+            </div>
+
+            <div class="meta-row">
+                <div class="meta-cell">
+                    <div class="meta-title">Стан</div>
+                    <div class="condition-stars">
+                        <span v-for="i in 5" :key="i" class="star" :class="{filled: i <= selectedItem.condition_score}">&#9679;</span>
+                    </div>
+                    <div class="meta-value">{{ selectedItem.condition_label }}</div>
+                </div>
+                <div class="meta-cell">
+                    <div class="meta-title">Площа</div>
+                    <div class="meta-value big">{{ selectedItem.final_area }} м²</div>
+                </div>
+            </div>
+
+            <div v-if="selectedItem.factors && selectedItem.factors.length" class="factors-block" style="margin-top:16px">
+                <div class="factors-title">Помічено на фото</div>
+                <div v-for="f in selectedItem.factors" :key="f.text" class="factor-item" :class="'factor-' + f.type">
+                    <span class="factor-sign">{{ f.type === 'positive' ? '+' : '−' }}</span>
+                    {{ f.text }}
+                </div>
+            </div>
+
+            <div v-if="selectedItem.explanation" class="explanation-block" style="margin-top:16px">
+                <div class="explanation-title">Пояснення</div>
+                <div class="explanation-text">{{ selectedItem.explanation }}</div>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-top:16px">
+                <button class="btn-pdf" @click="openHistoryPdf(selectedItem.id)">Завантажити PDF</button>
+            </div>
+            <div class="modal-date">{{ formatDate(selectedItem.created_at) }}</div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         COMPARE MODAL
+         ═══════════════════════════════════════════ -->
+    <div v-if="compareData" class="modal-overlay" @click.self="compareData=null">
+        <div class="modal modal-wide">
+            <button class="modal-close" @click="compareData=null">&#10005;</button>
+            <h3 class="modal-title">Порівняння оцінок</h3>
+            <div class="compare-grid">
+                <div v-for="item in compareData" :key="item.id" class="compare-col">
+                    <img v-if="item.photos && item.photos[0]" :src="item.photos[0].url" class="compare-thumb" alt="фото">
+                    <div class="compare-col-title">
+                        {{ item.city_name }}, {{ item.rooms_count }}-кімн. {{ item.realty_type === 'apartment' ? 'квартира' : 'будинок' }}
+                    </div>
+                    <div class="compare-price">${{ formatNum(item.final_price) }}</div>
+                    <div class="compare-range">${{ formatNum(item.price_min) }} – ${{ formatNum(item.price_max) }}</div>
+                    <div class="compare-row"><span class="clabel">Площа</span><span class="cval">{{ item.final_area }} м²</span></div>
+                    <div class="compare-row"><span class="clabel">Стан</span><span class="cval">{{ item.condition_score }}/5 — {{ item.condition_label }}</span></div>
+                    <div class="compare-row"><span class="clabel">Ціна за м²</span><span class="cval">${{ formatNum(item.base_price_per_m2) }}</span></div>
+                    <div class="compare-row" v-if="item.year_built"><span class="clabel">Рік</span><span class="cval">{{ item.year_built }}</span></div>
+                    <div class="compare-row" v-if="item.floor"><span class="clabel">Поверх</span><span class="cval">{{ item.floor }}{{ item.total_floors ? '/' + item.total_floors : '' }}</span></div>
+                    <div class="compare-row"><span class="clabel">Дата оцінки</span><span class="cval" style="font-size:11px">{{ (item.created_at || '').slice(0,10) }}</span></div>
+                </div>
+            </div>
+            <!-- Price diff -->
+            <div v-if="compareData.length === 2" style="margin-top:16px;text-align:center;font-size:13px;color:var(--muted)">
+                Різниця в ціні:
+                <strong :class="compareData[0].final_price > compareData[1].final_price ? 'compare-diff-pos' : 'compare-diff-neg'">
+                    ${{ formatNum(Math.abs(compareData[0].final_price - compareData[1].final_price)) }}
+                    ({{ Math.round(Math.abs(compareData[0].final_price - compareData[1].final_price) / Math.min(compareData[0].final_price, compareData[1].final_price) * 100) }}%)
+                </strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         COMPARE FLOATING BAR
+         ═══════════════════════════════════════════ -->
+    <div v-if="currentPage==='history' && compareSelected > 0" class="compare-bar">
+        <span>Вибрано: {{ compareSelected }}/2</span>
+        <button class="btn-primary" style="width:auto;padding:8px 18px"
+                :disabled="compareSelected < 2 || compareLoading"
+                @click="startCompare">
+            {{ compareLoading ? 'Завантаження...' : 'Порівняти' }}
+        </button>
+        <button class="btn-secondary" style="padding:8px 14px" @click="compareIds=[]">Скасувати</button>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
