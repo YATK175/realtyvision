@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>RealtyVision — СППР</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='dss.css') }}" />
+  </head>
+
+  <body>
+    <header class="main-header">
+      <div class="brand">
+        <div class="brand-icon">RV</div>
+
+        <div>
+          <h1>RealtyVision DSS</h1>
+          <p>Система підтримки прийняття рішень</p>
+        </div>
+      </div>
+
+      <a href="/" class="home-button"> ← Повернутися до RealtyVision </a>
+    </header>
+
+    <main class="page-container">
+      <section class="hero">
+        <div>
+          <span class="status-badge"> Лабораторна робота №1 </span>
+
+          <h2>Вибір оптимального об’єкта нерухомості</h2>
+
+          <p>
+            Модуль призначений для роботи з альтернативами, критеріями,
+            експертними оцінками, правилами та результатами багатокритеріального
+            аналізу.
+          </p>
+        </div>
+
+        <div class="hero-status">
+          <span class="status-circle"></span>
+          Каркас модуля активний
+        </div>
+      </section>
+
+      <nav class="tabs" aria-label="Розділи СППР">
+        <button type="button" class="tab-button active" data-tab="expertise">
+          1. Експертиза
+        </button>
+
+        <button type="button" class="tab-button" data-tab="model">
+          2. Модель та дані
+        </button>
+
+        <button type="button" class="tab-button" data-tab="rules">
+          3. Експертна логіка
+        </button>
+
+        <button type="button" class="tab-button" data-tab="results">
+          4. Результати та аналіз
+        </button>
+      </nav>
+
+      <!-- ЕКРАН 1 -->
+      <section id="expertise" class="tab-content active">
+        <div class="section-heading">
+          <div>
+            <h2>Експертиза</h2>
+
+            <p>
+              Імпорт, перегляд і майбутнє узгодження оцінок експертної групи.
+            </p>
+          </div>
+
+          <span class="section-number">01</span>
+        </div>
+
+        <div class="grid-two">
+          <article class="card">
+            <h3>Імпорт із Google Sheets</h3>
+
+            <p class="muted-text">
+              Введіть посилання на опубліковану таблицю з оцінками експертів.
+            </p>
+
+            <label for="googleSheetsUrl"> Посилання на Google Sheets </label>
+
+            <input
+              id="googleSheetsUrl"
+              type="url"
+              placeholder="https://docs.google.com/spreadsheets/..."
+            />
+
+            <button
+              type="button"
+              class="primary-button"
+              data-demo-message="Імпорт із Google Sheets буде реалізований у наступній лабораторній роботі."
+            >
+              Імпортувати оцінки
+            </button>
+          </article>
+
+          <article class="card">
+            <h3>Імпорт із файла</h3>
+
+            <p class="muted-text">Підтримуватимуться формати CSV та Excel.</p>
+
+            <label for="expertFile"> Виберіть файл </label>
+
+            <input id="expertFile" type="file" accept=".csv,.xlsx,.xls" />
+
+            <label for="consensusMethod"> Метод узгодження </label>
+
+            <select id="consensusMethod">
+              <option value="average">Середнє арифметичне</option>
+
+              <option value="median">Медіана</option>
+
+              <option value="geometric">Середнє геометричне</option>
+            </select>
+
+            <button
+              type="button"
+              class="primary-button"
+              data-demo-message="Методи узгодження оцінок будуть реалізовані на наступному етапі."
+            >
+              Узгодити оцінки
+            </button>
+          </article>
+        </div>
+
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <h3>Експертні оцінки</h3>
+
+              <p class="muted-text">Демонстраційний вигляд таблиці.</p>
+            </div>
+
+            <button
+              type="button"
+              class="secondary-button"
+              data-demo-message="Ручне додавання експертів буде реалізовано пізніше."
+            >
+              + Додати експерта
+            </button>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Експерт</th>
+                  <th>Ціна</th>
+                  <th>Площа</th>
+                  <th>Стан</th>
+                  <th>Локація</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td>Експерт 1</td>
+                  <td>40</td>
+                  <td>20</td>
+                  <td>20</td>
+                  <td>20</td>
+                </tr>
+
+                <tr>
+                  <td>Експерт 2</td>
+                  <td>35</td>
+                  <td>25</td>
+                  <td>25</td>
+                  <td>15</td>
+                </tr>
+
+                <tr>
+                  <td>Експерт 3</td>
+                  <td>30</td>
+                  <td>20</td>
+                  <td>30</td>
+                  <td>20</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- ЕКРАН 2 -->
+      <section id="model" class="tab-content">
+        <div class="section-heading">
+          <div>
+            <h2>Модель та дані</h2>
+
+            <p>Управління альтернативами, критеріями та матрицею оцінювання.</p>
+          </div>
+
+          <span class="section-number">02</span>
+        </div>
+
+        <div class="grid-two">
+          <article class="card">
+            <div class="card-header">
+              <h3>Альтернативи</h3>
+
+              <button
+                type="button"
+                class="secondary-button"
+                data-demo-message="Форму додавання альтернативи буде підключено до бази даних у наступній роботі."
+              >
+                + Додати
+              </button>
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Назва</th>
+                    <th>Ціна</th>
+                    <th>Площа</th>
+                    <th>Дії</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>Квартира А</td>
+                    <td>2 500 000</td>
+                    <td>62 м²</td>
+                    <td>
+                      <button
+                        type="button"
+                        class="table-action"
+                        data-demo-message="Редагування альтернативи буде реалізовано пізніше."
+                      >
+                        Редагувати
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Квартира Б</td>
+                    <td>2 100 000</td>
+                    <td>55 м²</td>
+                    <td>
+                      <button
+                        type="button"
+                        class="table-action"
+                        data-demo-message="Редагування альтернативи буде реалізовано пізніше."
+                      >
+                        Редагувати
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <h3>Критерії</h3>
+
+              <button
+                type="button"
+                class="secondary-button"
+                data-demo-message="Форму створення критерію буде підключено до бази даних пізніше."
+              >
+                + Додати
+              </button>
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Назва</th>
+                    <th>Тип</th>
+                    <th>Вага</th>
+                    <th>Поріг</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>Ціна</td>
+                    <td>
+                      <span class="type-min"> minimize </span>
+                    </td>
+                    <td>0.30</td>
+                    <td>3 000 000</td>
+                  </tr>
+
+                  <tr>
+                    <td>Площа</td>
+                    <td>
+                      <span class="type-max"> maximize </span>
+                    </td>
+                    <td>0.20</td>
+                    <td>50</td>
+                  </tr>
+
+                  <tr>
+                    <td>Стан</td>
+                    <td>
+                      <span class="type-max"> maximize </span>
+                    </td>
+                    <td>0.25</td>
+                    <td>5</td>
+                  </tr>
+
+                  <tr>
+                    <td>Локація</td>
+                    <td>
+                      <span class="type-max"> maximize </span>
+                    </td>
+                    <td>0.25</td>
+                    <td>6</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <h3>Матриця оцінювання</h3>
+
+              <p class="muted-text">
+                Рядки — альтернативи, стовпці — критерії.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="primary-button"
+              data-demo-message="Збереження матриці буде реалізовано після створення моделей бази даних."
+            >
+              Зберегти матрицю
+            </button>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Альтернатива</th>
+                  <th>Ціна</th>
+                  <th>Площа</th>
+                  <th>Стан</th>
+                  <th>Ремонт</th>
+                  <th>Локація</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td>Квартира А</td>
+                  <td>2 500 000</td>
+                  <td>62</td>
+                  <td>8</td>
+                  <td>300 000</td>
+                  <td>9</td>
+                </tr>
+
+                <tr>
+                  <td>Квартира Б</td>
+                  <td>2 100 000</td>
+                  <td>55</td>
+                  <td>6</td>
+                  <td>500 000</td>
+                  <td>7</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- ЕКРАН 3 -->
+      <section id="rules" class="tab-content">
+        <div class="section-heading">
+          <div>
+            <h2>Експертна логіка</h2>
+
+            <p>Налаштування порогів та правил виду IF–THEN.</p>
+          </div>
+
+          <span class="section-number">03</span>
+        </div>
+
+        <div class="grid-two">
+          <article class="card">
+            <h3>Порогове обмеження</h3>
+
+            <label for="thresholdCriterion"> Критерій </label>
+
+            <select id="thresholdCriterion">
+              <option>Ціна</option>
+              <option>Площа</option>
+              <option>Стан</option>
+              <option>Вартість ремонту</option>
+              <option>Локація</option>
+            </select>
+
+            <label for="thresholdOperator"> Умова </label>
+
+            <select id="thresholdOperator">
+              <option>Менше або дорівнює</option>
+              <option>Більше або дорівнює</option>
+              <option>Менше</option>
+              <option>Більше</option>
+            </select>
+
+            <label for="thresholdValue"> Значення </label>
+
+            <input id="thresholdValue" type="number" value="3000000" />
+
+            <button
+              type="button"
+              class="primary-button"
+              data-demo-message="Порогове обмеження збережено в демонстраційному режимі."
+            >
+              Додати поріг
+            </button>
+          </article>
+
+          <article class="card">
+            <h3>Правило IF–THEN</h3>
+
+            <label for="ruleField"> IF — поле </label>
+
+            <select id="ruleField">
+              <option>Вартість ремонту</option>
+              <option>Ціна</option>
+              <option>Стан</option>
+              <option>Локація</option>
+            </select>
+
+            <label for="ruleOperator"> Оператор </label>
+
+            <select id="ruleOperator">
+              <option>Більше</option>
+              <option>Менше</option>
+              <option>Дорівнює</option>
+            </select>
+
+            <label for="ruleValue"> Значення умови </label>
+
+            <input id="ruleValue" type="number" value="500000" />
+
+            <label for="ruleAction"> THEN — дія </label>
+
+            <select id="ruleAction">
+              <option>Зменшити оцінку</option>
+              <option>Збільшити оцінку</option>
+              <option>Виключити альтернативу</option>
+            </select>
+
+            <label for="ruleActionValue"> Значення дії </label>
+
+            <input id="ruleActionValue" type="number" value="10" />
+
+            <button
+              type="button"
+              class="primary-button"
+              data-demo-message="Правило IF–THEN збережено в демонстраційному режимі."
+            >
+              Зберегти правило
+            </button>
+          </article>
+        </div>
+
+        <article class="card">
+          <h3>Створені правила</h3>
+
+          <div class="rule-list">
+            <div class="rule-item">
+              <div>
+                <strong>Висока вартість ремонту</strong>
+
+                <p>
+                  IF вартість ремонту &gt; 500 000 THEN зменшити оцінку на 10%.
+                </p>
+              </div>
+
+              <span class="enabled-badge"> Активне </span>
+            </div>
+
+            <div class="rule-item">
+              <div>
+                <strong>Незадовільний стан</strong>
+
+                <p>IF стан &lt; 4 THEN виключити альтернативу.</p>
+              </div>
+
+              <span class="enabled-badge"> Активне </span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- ЕКРАН 4 -->
+      <section id="results" class="tab-content">
+        <div class="section-heading">
+          <div>
+            <h2>Результати та аналіз</h2>
+
+            <p>
+              Вибір методу згортки, рейтинг, пояснення та аналіз чутливості.
+            </p>
+          </div>
+
+          <span class="section-number">04</span>
+        </div>
+
+        <article class="card calculation-panel">
+          <div>
+            <label for="aggregationMethod"> Метод згортки </label>
+
+            <select id="aggregationMethod">
+              <option>Адитивний</option>
+              <option>Обережний — мінімум</option>
+              <option>Мультиплікативний</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="scenario"> Сценарій </label>
+
+            <select id="scenario">
+              <option>Базовий</option>
+              <option>Оптимістичний</option>
+              <option>Песимістичний</option>
+            </select>
+          </div>
+
+          <button
+            type="button"
+            class="primary-button"
+            data-demo-message="Обчислення рейтингу буде реалізовано в наступних лабораторних роботах."
+          >
+            Розрахувати рейтинг
+          </button>
+        </article>
+
+        <div class="grid-two">
+          <article class="card">
+            <h3>Рейтинг альтернатив</h3>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Місце</th>
+                    <th>Альтернатива</th>
+                    <th>Оцінка</th>
+                    <th>Статус</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr class="winner-row">
+                    <td>1</td>
+                    <td>Квартира А</td>
+                    <td>0.82</td>
+                    <td>
+                      <span class="winner-badge"> Рекомендовано </span>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>2</td>
+                    <td>Квартира Б</td>
+                    <td>0.68</td>
+                    <td>Допустима</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="card explanation-card">
+            <span class="best-label"> Найкраща альтернатива </span>
+
+            <h3>Квартира А</h3>
+
+            <p>
+              Інтегральна оцінка:
+              <strong>0.82</strong>
+            </p>
+
+            <h4>Основні причини вибору</h4>
+
+            <ul>
+              <li>виконано всі порогові обмеження;</li>
+
+              <li>висока оцінка розташування;</li>
+
+              <li>невелика вартість ремонту;</li>
+
+              <li>найкраще співвідношення ціни та площі.</li>
+            </ul>
+          </article>
+        </div>
+
+        <article class="card">
+          <h3>Аналіз чутливості</h3>
+
+          <div class="sensitivity-controls">
+            <div>
+              <label for="sensitivityCriterion"> Критерій </label>
+
+              <select id="sensitivityCriterion">
+                <option>Ціна</option>
+                <option>Площа</option>
+                <option>Стан</option>
+                <option>Локація</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="newWeight"> Нова вага </label>
+
+              <input
+                id="newWeight"
+                type="number"
+                min="0"
+                max="1"
+                step="0.01"
+                value="0.35"
+              />
+            </div>
+
+            <button
+              type="button"
+              class="secondary-button"
+              data-demo-message="Аналіз чутливості буде реалізовано на наступному етапі."
+            >
+              Перерахувати
+            </button>
+          </div>
+
+          <div class="chart-placeholder">
+            <span>Місце для графіка аналізу чутливості</span>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <div id="notification" class="notification" role="status"></div>
+
+    <script src="{{ url_for('static', filename='dss.js') }}"></script>
+  </body>
+</html>

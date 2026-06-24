@@ -4,6 +4,7 @@ import uuid
 from pathlib import Path
 
 from flask import Flask, request, jsonify, send_from_directory, session, render_template_string
+from controllers.dss_controller import dss_blueprint
 
 import config
 from models.database import init_db
@@ -16,6 +17,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+app.register_blueprint(dss_blueprint)
 app.config['MAX_CONTENT_LENGTH'] = config.MAX_UPLOAD_SIZE_MB * 1024 * 1024 * config.MAX_PHOTOS
 app.secret_key = config.SECRET_KEY
 
