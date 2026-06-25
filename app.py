@@ -8,6 +8,10 @@ from controllers.dss_controller import dss_blueprint
 
 import config
 from models.database import init_db
+from controllers.dss_expert_controller import dss_expert_blueprint
+from models.dss_expert_database import init_dss_expert_database
+from models.dss_database import init_dss_database
+from controllers.dss_controller import dss_blueprint
 from models import repository
 
 logging.basicConfig(
@@ -17,7 +21,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+init_dss_database()
+init_dss_expert_database()
 app.register_blueprint(dss_blueprint)
+app.register_blueprint(dss_expert_blueprint)
 app.config['MAX_CONTENT_LENGTH'] = config.MAX_UPLOAD_SIZE_MB * 1024 * 1024 * config.MAX_PHOTOS
 app.secret_key = config.SECRET_KEY
 
