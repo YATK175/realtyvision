@@ -6,6 +6,10 @@
     <title>RealtyVision DSS — СППР</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='dss.css') }}" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='dss_voting.css') }}"
+    />
   </head>
 
   <body>
@@ -644,6 +648,8 @@
     <script src="{{ url_for('static', filename='dss_results.js') }}"></script>
 
     <script src="{{ url_for('static', filename='dss_expertise.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='dss_voting.js') }}"></script>
 
     <!-- Надійне перемикання вкладок, якщо старий dss.js має іншу структуру -->
     <script>
