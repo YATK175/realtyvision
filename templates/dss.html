@@ -1,661 +1,821 @@
 <!DOCTYPE html>
 <html lang="uk">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>RealtyVision DSS — СППР</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='dss.css') }}"
+    >
+</head>
 
-    <title>RealtyVision — СППР</title>
+<body>
+    <header class="dss-topbar">
+        <div class="dss-topbar__inner">
+            <a class="dss-brand" href="/dss">
+                <span class="dss-brand__logo">RV</span>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='dss.css') }}" />
-  </head>
+                <span class="dss-brand__text">
+                    <strong>RealtyVision DSS</strong>
+                    <small>Система підтримки прийняття рішень</small>
+                </span>
+            </a>
 
-  <body>
-    <header class="main-header">
-      <div class="brand">
-        <div class="brand-icon">RV</div>
-
-        <div>
-          <h1>RealtyVision DSS</h1>
-          <p>Система підтримки прийняття рішень</p>
+            <a class="dss-back-link" href="/">
+                ← Повернутися до RealtyVision
+            </a>
         </div>
-      </div>
-
-      <a href="/" class="home-button"> ← Повернутися до RealtyVision </a>
     </header>
 
-    <main class="page-container">
-      <section class="hero">
-        <div>
-          <span class="status-badge"> Лабораторна робота №1 </span>
+    <main class="dss-main">
+        <div class="dss-container">
 
-          <h2>Вибір оптимального об’єкта нерухомості</h2>
+            <!-- Загальна інформація -->
+            <section class="dss-hero-card">
+                <div>
+                    <span
+                        id="dss-lab-badge"
+                        class="dss-badge"
+                    >
+                        Лабораторна робота №2
+                    </span>
 
-          <p>
-            Модуль призначений для роботи з альтернативами, критеріями,
-            експертними оцінками, правилами та результатами багатокритеріального
-            аналізу.
-          </p>
-        </div>
+                    <h1>
+                        Вибір оптимального об’єкта нерухомості
+                    </h1>
 
-        <div class="hero-status">
-          <span class="status-circle"></span>
-          Каркас модуля активний
-        </div>
-      </section>
+                    <p>
+                        Модуль призначений для роботи з альтернативами,
+                        критеріями, експертними оцінками, правилами,
+                        порогами та результатами багатокритеріального
+                        аналізу.
+                    </p>
+                </div>
 
-      <nav class="tabs" aria-label="Розділи СППР">
-        <button type="button" class="tab-button active" data-tab="expertise">
-          1. Експертиза
-        </button>
+                <div class="dss-module-state">
+                    <span class="dss-status-dot"></span>
 
-        <button type="button" class="tab-button" data-tab="model">
-          2. Модель та дані
-        </button>
+                    <span id="dss-module-status">
+                        Модуль СППР активний
+                    </span>
+                </div>
+            </section>
 
-        <button type="button" class="tab-button" data-tab="rules">
-          3. Експертна логіка
-        </button>
+            <!-- Навігація -->
+            <nav class="dss-tabs" aria-label="Розділи СППР">
+                <button
+                    type="button"
+                    class="dss-tab-button active"
+                    data-tab="expertise"
+                    aria-controls="panel-expertise"
+                    aria-selected="true"
+                >
+                    1. Експертиза
+                </button>
 
-        <button type="button" class="tab-button" data-tab="results">
-          4. Результати та аналіз
-        </button>
-      </nav>
+                <button
+                    type="button"
+                    class="dss-tab-button"
+                    data-tab="model"
+                    aria-controls="panel-model"
+                    aria-selected="false"
+                >
+                    2. Модель та дані
+                </button>
 
-      <!-- ЕКРАН 1 -->
-      <section id="expertise" class="tab-content active">
-        <div class="section-heading">
-          <div>
-            <h2>Експертиза</h2>
+                <button
+                    type="button"
+                    class="dss-tab-button"
+                    data-tab="rules"
+                    aria-controls="panel-rules"
+                    aria-selected="false"
+                >
+                    3. Експертна логіка
+                </button>
 
-            <p>
-              Імпорт, перегляд і майбутнє узгодження оцінок експертної групи.
-            </p>
-          </div>
+                <button
+                    type="button"
+                    class="dss-tab-button"
+                    data-tab="results"
+                    aria-controls="panel-results"
+                    aria-selected="false"
+                >
+                    4. Результати та аналіз
+                </button>
+            </nav>
 
-          <span class="section-number">01</span>
-        </div>
-
-        <div class="grid-two">
-          <article class="card">
-            <h3>Імпорт із Google Sheets</h3>
-
-            <p class="muted-text">
-              Введіть посилання на опубліковану таблицю з оцінками експертів.
-            </p>
-
-            <label for="googleSheetsUrl"> Посилання на Google Sheets </label>
-
-            <input
-              id="googleSheetsUrl"
-              type="url"
-              placeholder="https://docs.google.com/spreadsheets/..."
-            />
-
-            <button
-              type="button"
-              class="primary-button"
-              data-demo-message="Імпорт із Google Sheets буде реалізований у наступній лабораторній роботі."
+            <!-- ================================================== -->
+            <!-- 1. ЕКСПЕРТИЗА -->
+            <!-- ================================================== -->
+            <section
+                id="panel-expertise"
+                class="dss-tab-panel active"
+                data-panel="expertise"
             >
-              Імпортувати оцінки
-            </button>
-          </article>
+                <div class="dss-section-title">
+                    <div>
+                        <h2>Експертиза</h2>
+                        <p>
+                            Імпорт, перегляд і майбутнє узгодження
+                            оцінок експертної групи.
+                        </p>
+                    </div>
 
-          <article class="card">
-            <h3>Імпорт із файла</h3>
+                    <span class="dss-section-number">01</span>
+                </div>
 
-            <p class="muted-text">Підтримуватимуться формати CSV та Excel.</p>
+                <div class="dss-card-grid dss-card-grid--two">
+                    <article class="dss-card">
+                        <h3>Імпорт із Google Sheets</h3>
 
-            <label for="expertFile"> Виберіть файл </label>
+                        <p>
+                            Введіть посилання на опубліковану таблицю
+                            з оцінками експертів.
+                        </p>
 
-            <input id="expertFile" type="file" accept=".csv,.xlsx,.xls" />
+                        <label for="google-sheets-url">
+                            Посилання на Google Sheets
+                        </label>
 
-            <label for="consensusMethod"> Метод узгодження </label>
+                        <input
+                            id="google-sheets-url"
+                            type="url"
+                            placeholder="https://docs.google.com/spreadsheets/..."
+                        >
 
-            <select id="consensusMethod">
-              <option value="average">Середнє арифметичне</option>
+                        <button
+                            type="button"
+                            class="primary-button"
+                            id="google-sheets-import-button"
+                        >
+                            Імпортувати оцінки
+                        </button>
+                    </article>
 
-              <option value="median">Медіана</option>
+                    <article class="dss-card">
+                        <h3>Імпорт із файла</h3>
 
-              <option value="geometric">Середнє геометричне</option>
-            </select>
+                        <p>
+                            Підтримуватимуться формати CSV та Excel.
+                        </p>
 
-            <button
-              type="button"
-              class="primary-button"
-              data-demo-message="Методи узгодження оцінок будуть реалізовані на наступному етапі."
+                        <label for="expert-file-input">
+                            Виберіть файл
+                        </label>
+
+                        <input
+                            id="expert-file-input"
+                            type="file"
+                            accept=".csv,.xlsx,.xls"
+                        >
+
+                        <label for="consensus-method">
+                            Метод узгодження
+                        </label>
+
+                        <select id="consensus-method">
+                            <option value="arithmetic_mean">
+                                Середнє арифметичне
+                            </option>
+                            <option value="median">
+                                Медіана
+                            </option>
+                            <option value="geometric_mean">
+                                Середнє геометричне
+                            </option>
+                        </select>
+
+                        <button
+                            type="button"
+                            class="primary-button"
+                            id="consensus-calculate-button"
+                        >
+                            Узгодити оцінки
+                        </button>
+                    </article>
+                </div>
+
+                <article class="dss-card">
+                    <div class="dss-card-heading">
+                        <div>
+                            <h3>Експертні оцінки</h3>
+                            <p>
+                                Демонстраційний вигляд таблиці.
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="secondary-button"
+                            id="add-expert-button"
+                        >
+                            + Додати експерта
+                        </button>
+                    </div>
+
+                    <div class="dss-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Експерт</th>
+                                    <th>Ціна</th>
+                                    <th>Площа</th>
+                                    <th>Стан</th>
+                                    <th>Локація</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="expert-scores-table-body">
+                                <tr>
+                                    <td>Експерт 1</td>
+                                    <td>40</td>
+                                    <td>20</td>
+                                    <td>20</td>
+                                    <td>20</td>
+                                </tr>
+                                <tr>
+                                    <td>Експерт 2</td>
+                                    <td>35</td>
+                                    <td>25</td>
+                                    <td>25</td>
+                                    <td>15</td>
+                                </tr>
+                                <tr>
+                                    <td>Експерт 3</td>
+                                    <td>30</td>
+                                    <td>20</td>
+                                    <td>30</td>
+                                    <td>20</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+
+            <!-- ================================================== -->
+            <!-- 2. МОДЕЛЬ ТА ДАНІ -->
+            <!-- ================================================== -->
+            <section
+                id="panel-model"
+                class="dss-tab-panel"
+                data-panel="model"
+                hidden
             >
-              Узгодити оцінки
-            </button>
-          </article>
-        </div>
+                <div class="dss-section-title">
+                    <div>
+                        <h2>Модель та дані</h2>
+                        <p>
+                            Альтернативи, критерії, ваги, пороги та
+                            матриця оцінювання.
+                        </p>
+                    </div>
 
-        <article class="card">
-          <div class="card-header">
-            <div>
-              <h3>Експертні оцінки</h3>
+                    <span class="dss-section-number">02</span>
+                </div>
 
-              <p class="muted-text">Демонстраційний вигляд таблиці.</p>
-            </div>
-
-            <button
-              type="button"
-              class="secondary-button"
-              data-demo-message="Ручне додавання експертів буде реалізовано пізніше."
-            >
-              + Додати експерта
-            </button>
-          </div>
-
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Експерт</th>
-                  <th>Ціна</th>
-                  <th>Площа</th>
-                  <th>Стан</th>
-                  <th>Локація</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <tr>
-                  <td>Експерт 1</td>
-                  <td>40</td>
-                  <td>20</td>
-                  <td>20</td>
-                  <td>20</td>
-                </tr>
-
-                <tr>
-                  <td>Експерт 2</td>
-                  <td>35</td>
-                  <td>25</td>
-                  <td>25</td>
-                  <td>15</td>
-                </tr>
-
-                <tr>
-                  <td>Експерт 3</td>
-                  <td>30</td>
-                  <td>20</td>
-                  <td>30</td>
-                  <td>20</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </article>
-      </section>
-
-      <!-- ЕКРАН 2 -->
-      <section id="model" class="tab-content">
-        <div class="section-heading">
-          <div>
-            <h2>Модель та дані</h2>
-
-            <p>Управління альтернативами, критеріями та матрицею оцінювання.</p>
-          </div>
-
-          <span class="section-number">02</span>
-        </div>
-
-        <div class="grid-two">
-          <article class="card">
-            <div class="card-header">
-              <h3>Альтернативи</h3>
-
-              <button
-                type="button"
-                class="secondary-button"
-                data-demo-message="Форму додавання альтернативи буде підключено до бази даних у наступній роботі."
-              >
-                + Додати
-              </button>
-            </div>
-
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Назва</th>
-                    <th>Ціна</th>
-                    <th>Площа</th>
-                    <th>Дії</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <tr>
-                    <td>Квартира А</td>
-                    <td>2 500 000</td>
-                    <td>62 м²</td>
-                    <td>
-                      <button
+                <div class="dss-data-toolbar">
+                    <button
                         type="button"
-                        class="table-action"
-                        data-demo-message="Редагування альтернативи буде реалізовано пізніше."
-                      >
-                        Редагувати
-                      </button>
-                    </td>
-                  </tr>
+                        class="secondary-button"
+                        data-dss-refresh
+                    >
+                        Оновити дані
+                    </button>
 
-                  <tr>
-                    <td>Квартира Б</td>
-                    <td>2 100 000</td>
-                    <td>55 м²</td>
-                    <td>
-                      <button
-                        type="button"
-                        class="table-action"
-                        data-demo-message="Редагування альтернативи буде реалізовано пізніше."
-                      >
-                        Редагувати
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </article>
+                    <div
+                        id="dss-api-message"
+                        class="dss-api-message"
+                        hidden
+                    ></div>
+                </div>
 
-          <article class="card">
-            <div class="card-header">
-              <h3>Критерії</h3>
+                <div class="dss-card-grid dss-card-grid--two">
+                    <article class="dss-card">
+                        <div class="dss-card-heading">
+                            <div>
+                                <h3>Альтернативи</h3>
+                                <p>
+                                    Об’єкти нерухомості для порівняння.
+                                </p>
+                            </div>
+                        </div>
 
-              <button
-                type="button"
-                class="secondary-button"
-                data-demo-message="Форму створення критерію буде підключено до бази даних пізніше."
-              >
-                + Додати
-              </button>
-            </div>
+                        <div class="dss-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Назва</th>
+                                        <th>Адреса</th>
+                                        <th>Опис</th>
+                                    </tr>
+                                </thead>
 
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Назва</th>
-                    <th>Тип</th>
-                    <th>Вага</th>
-                    <th>Поріг</th>
-                  </tr>
-                </thead>
+                                <tbody id="alternatives-table-body">
+                                    <tr>
+                                        <td colspan="4">
+                                            Завантаження даних...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </article>
 
-                <tbody>
-                  <tr>
-                    <td>Ціна</td>
-                    <td>
-                      <span class="type-min"> minimize </span>
-                    </td>
-                    <td>0.30</td>
-                    <td>3 000 000</td>
-                  </tr>
+                    <article class="dss-card">
+                        <div class="dss-card-heading">
+                            <div>
+                                <h3>Критерії</h3>
+                                <p>
+                                    Тип, вага, шкала та порогове
+                                    обмеження.
+                                </p>
+                            </div>
+                        </div>
 
-                  <tr>
-                    <td>Площа</td>
-                    <td>
-                      <span class="type-max"> maximize </span>
-                    </td>
-                    <td>0.20</td>
-                    <td>50</td>
-                  </tr>
+                        <div class="dss-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Критерій</th>
+                                        <th>Тип</th>
+                                        <th>Вага</th>
+                                        <th>Одиниця</th>
+                                        <th>Поріг</th>
+                                        <th>Статус</th>
+                                    </tr>
+                                </thead>
 
-                  <tr>
-                    <td>Стан</td>
-                    <td>
-                      <span class="type-max"> maximize </span>
-                    </td>
-                    <td>0.25</td>
-                    <td>5</td>
-                  </tr>
+                                <tbody id="criteria-table-body">
+                                    <tr>
+                                        <td colspan="7">
+                                            Завантаження даних...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </article>
+                </div>
 
-                  <tr>
-                    <td>Локація</td>
-                    <td>
-                      <span class="type-max"> maximize </span>
-                    </td>
-                    <td>0.25</td>
-                    <td>6</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </article>
-        </div>
+                <article class="dss-card">
+                    <div class="dss-card-heading">
+                        <div>
+                            <h3>Матриця оцінювання</h3>
+                            <p>
+                                Значення завантажуються з SQLite.
+                                Після зміни клітинки оцінка автоматично
+                                зберігається.
+                            </p>
+                        </div>
+                    </div>
 
-        <article class="card">
-          <div class="card-header">
-            <div>
-              <h3>Матриця оцінювання</h3>
+                    <div class="dss-table-wrapper">
+                        <table class="data-table dss-matrix-table">
+                            <thead id="matrix-table-head"></thead>
+                            <tbody id="matrix-table-body"></tbody>
+                        </table>
+                    </div>
 
-              <p class="muted-text">
-                Рядки — альтернативи, стовпці — критерії.
-              </p>
-            </div>
+                    <div
+                        id="matrix-validation"
+                        class="matrix-validation"
+                    ></div>
+                </article>
+            </section>
 
-            <button
-              type="button"
-              class="primary-button"
-              data-demo-message="Збереження матриці буде реалізовано після створення моделей бази даних."
+            <!-- ================================================== -->
+            <!-- 3. ЕКСПЕРТНА ЛОГІКА -->
+            <!-- ================================================== -->
+            <section
+                id="panel-rules"
+                class="dss-tab-panel"
+                data-panel="rules"
+                hidden
             >
-              Зберегти матрицю
-            </button>
-          </div>
+                <div class="dss-section-title">
+                    <div>
+                        <h2>Експертна логіка</h2>
+                        <p>
+                            Порогові обмеження та правила виду IF–THEN.
+                        </p>
+                    </div>
 
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Альтернатива</th>
-                  <th>Ціна</th>
-                  <th>Площа</th>
-                  <th>Стан</th>
-                  <th>Ремонт</th>
-                  <th>Локація</th>
-                </tr>
-              </thead>
+                    <span class="dss-section-number">03</span>
+                </div>
 
-              <tbody>
-                <tr>
-                  <td>Квартира А</td>
-                  <td>2 500 000</td>
-                  <td>62</td>
-                  <td>8</td>
-                  <td>300 000</td>
-                  <td>9</td>
-                </tr>
+                <div class="dss-card-grid dss-card-grid--two">
+                    <article class="dss-card">
+                        <h3>Порогові обмеження</h3>
 
-                <tr>
-                  <td>Квартира Б</td>
-                  <td>2 100 000</td>
-                  <td>55</td>
-                  <td>6</td>
-                  <td>500 000</td>
-                  <td>7</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </article>
-      </section>
+                        <div class="dss-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Критерій</th>
+                                        <th>Умова</th>
+                                        <th>Дія</th>
+                                    </tr>
+                                </thead>
 
-      <!-- ЕКРАН 3 -->
-      <section id="rules" class="tab-content">
-        <div class="section-heading">
-          <div>
-            <h2>Експертна логіка</h2>
+                                <tbody>
+                                    <tr>
+                                        <td>Ціна</td>
+                                        <td>≤ 3 000 000 грн</td>
+                                        <td>Виключити при порушенні</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Площа</td>
+                                        <td>≥ 50 м²</td>
+                                        <td>Виключити при порушенні</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Стан</td>
+                                        <td>≥ 5 балів</td>
+                                        <td>Виключити при порушенні</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Локація</td>
+                                        <td>≥ 6 балів</td>
+                                        <td>Виключити при порушенні</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </article>
 
-            <p>Налаштування порогів та правил виду IF–THEN.</p>
-          </div>
+                    <article class="dss-card">
+                        <h3>Нове правило IF–THEN</h3>
 
-          <span class="section-number">03</span>
-        </div>
+                        <div class="dss-form-grid">
+                            <div>
+                                <label for="rule-field">
+                                    Поле або критерій
+                                </label>
 
-        <div class="grid-two">
-          <article class="card">
-            <h3>Порогове обмеження</h3>
+                                <select id="rule-field">
+                                    <option value="price">Ціна</option>
+                                    <option value="area">Площа</option>
+                                    <option value="condition">Стан</option>
+                                    <option value="location">Локація</option>
+                                </select>
+                            </div>
 
-            <label for="thresholdCriterion"> Критерій </label>
+                            <div>
+                                <label for="rule-operator">
+                                    Оператор
+                                </label>
 
-            <select id="thresholdCriterion">
-              <option>Ціна</option>
-              <option>Площа</option>
-              <option>Стан</option>
-              <option>Вартість ремонту</option>
-              <option>Локація</option>
-            </select>
+                                <select id="rule-operator">
+                                    <option value=">">&gt;</option>
+                                    <option value=">=">&gt;=</option>
+                                    <option value="<">&lt;</option>
+                                    <option value="<=">&lt;=</option>
+                                    <option value="=">=</option>
+                                </select>
+                            </div>
 
-            <label for="thresholdOperator"> Умова </label>
+                            <div>
+                                <label for="rule-value">
+                                    Значення
+                                </label>
 
-            <select id="thresholdOperator">
-              <option>Менше або дорівнює</option>
-              <option>Більше або дорівнює</option>
-              <option>Менше</option>
-              <option>Більше</option>
-            </select>
+                                <input
+                                    id="rule-value"
+                                    type="number"
+                                    step="any"
+                                >
+                            </div>
 
-            <label for="thresholdValue"> Значення </label>
+                            <div>
+                                <label for="rule-action">
+                                    Дія
+                                </label>
 
-            <input id="thresholdValue" type="number" value="3000000" />
+                                <select id="rule-action">
+                                    <option value="decrease">
+                                        Зменшити оцінку
+                                    </option>
+                                    <option value="increase">
+                                        Збільшити оцінку
+                                    </option>
+                                    <option value="exclude">
+                                        Виключити альтернативу
+                                    </option>
+                                </select>
+                            </div>
 
-            <button
-              type="button"
-              class="primary-button"
-              data-demo-message="Порогове обмеження збережено в демонстраційному режимі."
+                            <div>
+                                <label for="rule-percent">
+                                    Відсоток корекції
+                                </label>
+
+                                <input
+                                    id="rule-percent"
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="1"
+                                    value="20"
+                                >
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="primary-button"
+                            id="add-rule-button"
+                        >
+                            Додати правило
+                        </button>
+                    </article>
+                </div>
+
+                <article class="dss-card">
+                    <h3>Активні правила</h3>
+
+                    <div class="dss-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>Умова</th>
+                                    <th>Дія</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="rules-table-body">
+                                <tr>
+                                    <td>1</td>
+                                    <td>IF ціна &gt; 3 000 000</td>
+                                    <td>
+                                        THEN виключити альтернативу
+                                    </td>
+                                    <td>Активне</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>IF стан &lt; 6</td>
+                                    <td>
+                                        THEN зменшити оцінку на 20%
+                                    </td>
+                                    <td>Активне</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+
+            <!-- ================================================== -->
+            <!-- 4. РЕЗУЛЬТАТИ ТА АНАЛІЗ -->
+            <!-- ================================================== -->
+            <section
+                id="panel-results"
+                class="dss-tab-panel"
+                data-panel="results"
+                hidden
             >
-              Додати поріг
-            </button>
-          </article>
+                <div class="dss-section-title">
+                    <div>
+                        <h2>Результати та аналіз</h2>
+                        <p>
+                            Вибір методу згортки, рейтинг, пояснення
+                            та аналіз чутливості.
+                        </p>
+                    </div>
 
-          <article class="card">
-            <h3>Правило IF–THEN</h3>
+                    <span class="dss-section-number">04</span>
+                </div>
 
-            <label for="ruleField"> IF — поле </label>
+                <div
+                    id="dss-results-message"
+                    class="dss-results-message"
+                    hidden
+                ></div>
 
-            <select id="ruleField">
-              <option>Вартість ремонту</option>
-              <option>Ціна</option>
-              <option>Стан</option>
-              <option>Локація</option>
-            </select>
+                <article class="dss-card">
+                    <div class="dss-form-grid dss-form-grid--results">
+                        <div>
+                            <label for="dss-method-select">
+                                Метод згортки
+                            </label>
 
-            <label for="ruleOperator"> Оператор </label>
+                            <select id="dss-method-select">
+                                <option value="additive">
+                                    Адитивний
+                                </option>
+                                <option value="cautious">
+                                    Обережний (мінімум)
+                                </option>
+                                <option value="multiplicative">
+                                    Мультиплікативний
+                                </option>
+                            </select>
+                        </div>
 
-            <select id="ruleOperator">
-              <option>Більше</option>
-              <option>Менше</option>
-              <option>Дорівнює</option>
-            </select>
+                        <div>
+                            <label for="dss-scenario-select">
+                                Сценарій
+                            </label>
 
-            <label for="ruleValue"> Значення умови </label>
+                            <select id="dss-scenario-select">
+                                <option value="base">Базовий</option>
+                                <option value="economy">Економний</option>
+                                <option value="investment">
+                                    Інвестиційний
+                                </option>
+                            </select>
+                        </div>
 
-            <input id="ruleValue" type="number" value="500000" />
+                        <div class="dss-form-action">
+                            <button
+                                type="button"
+                                class="primary-button"
+                                id="dss-calculate-button"
+                            >
+                                Розрахувати рейтинг
+                            </button>
+                        </div>
+                    </div>
+                </article>
 
-            <label for="ruleAction"> THEN — дія </label>
+                <div class="dss-card-grid dss-card-grid--two">
+                    <article class="dss-card">
+                        <h3>Рейтинг альтернатив</h3>
 
-            <select id="ruleAction">
-              <option>Зменшити оцінку</option>
-              <option>Збільшити оцінку</option>
-              <option>Виключити альтернативу</option>
-            </select>
+                        <div class="dss-table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Місце</th>
+                                        <th>Альтернатива</th>
+                                        <th>Оцінка</th>
+                                        <th>Статус</th>
+                                    </tr>
+                                </thead>
 
-            <label for="ruleActionValue"> Значення дії </label>
+                                <tbody id="dss-ranking-body">
+                                    <tr>
+                                        <td colspan="4">
+                                            Натисніть
+                                            «Розрахувати рейтинг».
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </article>
 
-            <input id="ruleActionValue" type="number" value="10" />
+                    <article class="dss-card dss-best-card">
+                        <span class="dss-badge">
+                            Найкраща альтернатива
+                        </span>
 
-            <button
-              type="button"
-              class="primary-button"
-              data-demo-message="Правило IF–THEN збережено в демонстраційному режимі."
-            >
-              Зберегти правило
-            </button>
-          </article>
+                        <h3 id="dss-best-name">
+                            Результат ще не розраховано
+                        </h3>
+
+                        <p>
+                            Інтегральна оцінка:
+                            <strong id="dss-best-score">—</strong>
+                        </p>
+
+                        <h4>Основні причини вибору</h4>
+
+                        <ul id="dss-best-reasons">
+                            <li>
+                                Натисніть «Розрахувати рейтинг».
+                            </li>
+                        </ul>
+                    </article>
+                </div>
+
+                <article class="dss-card">
+                    <h3>Аналіз чутливості</h3>
+
+                    <div class="dss-form-grid dss-form-grid--sensitivity">
+                        <div>
+                            <label for="dss-sensitivity-criterion">
+                                Критерій
+                            </label>
+
+                            <select id="dss-sensitivity-criterion">
+                                <option value="">
+                                    Завантаження критеріїв...
+                                </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="dss-sensitivity-weight">
+                                Нова вага
+                            </label>
+
+                            <input
+                                id="dss-sensitivity-weight"
+                                type="number"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value="0.30"
+                            >
+                        </div>
+
+                        <div class="dss-form-action">
+                            <button
+                                type="button"
+                                class="secondary-button"
+                                id="dss-sensitivity-button"
+                            >
+                                Перерахувати
+                            </button>
+                        </div>
+                    </div>
+
+                    <div
+                        id="dss-sensitivity-result"
+                        class="dss-sensitivity-result"
+                    >
+                        Змініть вагу критерію та виконайте
+                        повторний розрахунок.
+                    </div>
+                </article>
+            </section>
         </div>
-
-        <article class="card">
-          <h3>Створені правила</h3>
-
-          <div class="rule-list">
-            <div class="rule-item">
-              <div>
-                <strong>Висока вартість ремонту</strong>
-
-                <p>
-                  IF вартість ремонту &gt; 500 000 THEN зменшити оцінку на 10%.
-                </p>
-              </div>
-
-              <span class="enabled-badge"> Активне </span>
-            </div>
-
-            <div class="rule-item">
-              <div>
-                <strong>Незадовільний стан</strong>
-
-                <p>IF стан &lt; 4 THEN виключити альтернативу.</p>
-              </div>
-
-              <span class="enabled-badge"> Активне </span>
-            </div>
-          </div>
-        </article>
-      </section>
-
-      <!-- ЕКРАН 4 -->
-      <section id="results" class="tab-content">
-        <div class="section-heading">
-          <div>
-            <h2>Результати та аналіз</h2>
-
-            <p>
-              Вибір методу згортки, рейтинг, пояснення та аналіз чутливості.
-            </p>
-          </div>
-
-          <span class="section-number">04</span>
-        </div>
-
-        <article class="card calculation-panel">
-          <div>
-            <label for="aggregationMethod"> Метод згортки </label>
-
-            <select id="aggregationMethod">
-              <option>Адитивний</option>
-              <option>Обережний — мінімум</option>
-              <option>Мультиплікативний</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="scenario"> Сценарій </label>
-
-            <select id="scenario">
-              <option>Базовий</option>
-              <option>Оптимістичний</option>
-              <option>Песимістичний</option>
-            </select>
-          </div>
-
-          <button
-            type="button"
-            class="primary-button"
-            data-demo-message="Обчислення рейтингу буде реалізовано в наступних лабораторних роботах."
-          >
-            Розрахувати рейтинг
-          </button>
-        </article>
-
-        <div class="grid-two">
-          <article class="card">
-            <h3>Рейтинг альтернатив</h3>
-
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Місце</th>
-                    <th>Альтернатива</th>
-                    <th>Оцінка</th>
-                    <th>Статус</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <tr class="winner-row">
-                    <td>1</td>
-                    <td>Квартира А</td>
-                    <td>0.82</td>
-                    <td>
-                      <span class="winner-badge"> Рекомендовано </span>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td>2</td>
-                    <td>Квартира Б</td>
-                    <td>0.68</td>
-                    <td>Допустима</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </article>
-
-          <article class="card explanation-card">
-            <span class="best-label"> Найкраща альтернатива </span>
-
-            <h3>Квартира А</h3>
-
-            <p>
-              Інтегральна оцінка:
-              <strong>0.82</strong>
-            </p>
-
-            <h4>Основні причини вибору</h4>
-
-            <ul>
-              <li>виконано всі порогові обмеження;</li>
-
-              <li>висока оцінка розташування;</li>
-
-              <li>невелика вартість ремонту;</li>
-
-              <li>найкраще співвідношення ціни та площі.</li>
-            </ul>
-          </article>
-        </div>
-
-        <article class="card">
-          <h3>Аналіз чутливості</h3>
-
-          <div class="sensitivity-controls">
-            <div>
-              <label for="sensitivityCriterion"> Критерій </label>
-
-              <select id="sensitivityCriterion">
-                <option>Ціна</option>
-                <option>Площа</option>
-                <option>Стан</option>
-                <option>Локація</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="newWeight"> Нова вага </label>
-
-              <input
-                id="newWeight"
-                type="number"
-                min="0"
-                max="1"
-                step="0.01"
-                value="0.35"
-              />
-            </div>
-
-            <button
-              type="button"
-              class="secondary-button"
-              data-demo-message="Аналіз чутливості буде реалізовано на наступному етапі."
-            >
-              Перерахувати
-            </button>
-          </div>
-
-          <div class="chart-placeholder">
-            <span>Місце для графіка аналізу чутливості</span>
-          </div>
-        </article>
-      </section>
     </main>
 
-    <div id="notification" class="notification" role="status"></div>
-
+    <!-- Спочатку перемикання вкладок -->
     <script src="{{ url_for('static', filename='dss.js') }}"></script>
-  </body>
+
+    <!-- Потім робота з альтернативами, критеріями та матрицею -->
+    <script src="{{ url_for('static', filename='dss_api.js') }}"></script>
+
+    <!-- Після цього рейтинг і аналіз чутливості -->
+    <script src="{{ url_for('static', filename='dss_results.js') }}"></script>
+
+    <!-- Надійне перемикання вкладок, якщо старий dss.js має іншу структуру -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const buttons = document.querySelectorAll("[data-tab]");
+            const panels = document.querySelectorAll("[data-panel]");
+
+            function openTab(tabName, updateHash = true) {
+                buttons.forEach(function (button) {
+                    const isActive = button.dataset.tab === tabName;
+
+                    button.classList.toggle("active", isActive);
+                    button.setAttribute(
+                        "aria-selected",
+                        String(isActive)
+                    );
+                });
+
+                panels.forEach(function (panel) {
+                    const isActive = panel.dataset.panel === tabName;
+
+                    panel.classList.toggle("active", isActive);
+                    panel.hidden = !isActive;
+                });
+
+                if (updateHash) {
+                    history.replaceState(
+                        null,
+                        "",
+                        "#" + tabName
+                    );
+                }
+            }
+
+            buttons.forEach(function (button) {
+                button.addEventListener("click", function () {
+                    openTab(button.dataset.tab);
+                });
+            });
+
+            const initialTab =
+                window.location.hash.replace("#", "") ||
+                "expertise";
+
+            const validTab = [
+                "expertise",
+                "model",
+                "rules",
+                "results"
+            ].includes(initialTab)
+                ? initialTab
+                : "expertise";
+
+            openTab(validTab, false);
+        });
+    </script>
+</body>
 </html>
