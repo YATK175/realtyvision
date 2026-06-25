@@ -8,6 +8,8 @@ from controllers.dss_controller import dss_blueprint
 
 import config
 from models.database import init_db
+from controllers.dss_rule_controller import dss_rule_blueprint
+from models.dss_rule_database import init_dss_rule_database
 from controllers.dss_voting_controller import dss_voting_blueprint
 from models.dss_voting_database import init_dss_voting_database
 from controllers.dss_expert_controller import dss_expert_blueprint
@@ -27,9 +29,11 @@ app = Flask(__name__)
 init_dss_database()
 init_dss_expert_database()
 init_dss_voting_database()
+init_dss_rule_database()
 app.register_blueprint(dss_blueprint)
 app.register_blueprint(dss_expert_blueprint)
 app.register_blueprint(dss_voting_blueprint)
+app.register_blueprint(dss_rule_blueprint)
 app.config['MAX_CONTENT_LENGTH'] = config.MAX_UPLOAD_SIZE_MB * 1024 * 1024 * config.MAX_PHOTOS
 app.secret_key = config.SECRET_KEY
 

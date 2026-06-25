@@ -10,6 +10,10 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='dss_voting.css') }}"
     />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='dss_rules.css') }}"
+    />
   </head>
 
   <body>
@@ -651,6 +655,7 @@
 
     <script src="{{ url_for('static', filename='dss_voting.js') }}"></script>
 
+    <script src="{{ url_for('static', filename='dss_rules.js') }}"></script>
     <!-- Надійне перемикання вкладок, якщо старий dss.js має іншу структуру -->
     <script>
       document.addEventListener("DOMContentLoaded", function () {
